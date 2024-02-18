@@ -23,10 +23,34 @@ impl<'a> Lexer<'a> {
                 self.next_char();
                 continue;
             }
+
+            if c.is_ascii_digit() {
+                tokens.push(self.read_num());
+                continue;
+            }
+
             tokens.push(StrLit(self.chs));
             break;
         }
         tokens
+    }
+
+    fn read_num(&mut self) -> Token<'a> {
+        let mut num = 0;
+        let mut chs = self.chs.chars();
+        loop {
+            match chs.clone().peekable().peek() {
+                Some(c) if c.is_ascii_digit() => {
+                    num = 10 * num + c.to_digit(10).unwrap();
+                    chs.next();
+                },
+                _ => {
+                    self.chs = chs.as_str();
+                    break;
+                },
+            }
+        }
+        Num(num)
     }
 
     fn peek_char(&self) -> Option<char> {
