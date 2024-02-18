@@ -26,6 +26,16 @@ impl<'a> Lexer<'a> {
                 continue;
             }
 
+            if c == '\'' {
+                tokens.push(self.read_char());
+                continue;
+            }
+
+            if c == '\"' {
+                tokens.push(self.read_string());
+                continue;
+            }
+
             if c.is_ascii_punctuation() {
                 tokens.push(self.read_punct());
                 continue;
@@ -41,7 +51,6 @@ impl<'a> Lexer<'a> {
                 continue;
             }
 
-            tokens.push(StrLit(self.chs));
             break;
         }
         tokens
@@ -111,6 +120,30 @@ impl<'a> Lexer<'a> {
             }
         }
         Num(num)
+    }
+
+    fn read_char(&mut self) -> Token<'a> {
+        self.next_char();
+        if let Some(c) = self.next_char() {
+            if Some('\'') == self.next_char() {
+                return Char(c);
+            }
+        }
+        panic!();
+    }
+
+    fn read_string(&mut self) -> Token<'a> {
+        self.next_char();
+        let mut chs = self.chs.char_indices();
+        let string = loop {
+            match chs.next() {
+                Some((i, '\"')) => break Some(&self.chs[..i]),
+                Some(_) => {},
+                None => break None,
+            }
+        }.unwrap();
+        self.chs = chs.as_str();
+        String(string)
     }
 
     fn peek_char(&self) -> Option<char> {
