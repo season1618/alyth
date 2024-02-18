@@ -1,6 +1,7 @@
 use crate::data::*;
 
 use Token::*;
+use PucntKind::*;
 use KeywordKind::*;
 
 pub fn tokenize<'a>(code: &'a str) -> Vec<Token<'a>> {
@@ -25,6 +26,11 @@ impl<'a> Lexer<'a> {
                 continue;
             }
 
+            if c.is_ascii_punctuation() {
+                tokens.push(self.read_punct());
+                continue;
+            }
+
             if c.is_ascii_alphabetic() {
                 tokens.push(self.read_keyword_ident());
                 continue;
@@ -39,6 +45,30 @@ impl<'a> Lexer<'a> {
             break;
         }
         tokens
+    }
+
+    fn read_punct(&mut self) -> Token<'a> {
+        let mut chs = self.chs.char_indices();
+        let string = loop {
+            match chs.clone().peekable().peek() {
+                Some((_, c)) if c.is_ascii_punctuation() => {
+                    chs.next();
+                },
+                Some((i, _)) => {
+                    break &self.chs[..*i]
+                },
+                _ => {
+                    break self.chs
+                },
+            }
+        };
+        self.chs = chs.as_str();
+
+        match string {
+            "+" => Punct(Plus),
+            "-" => Punct(Minus),
+            _ => panic!(),
+        }
     }
 
     fn read_keyword_ident(&mut self) -> Token<'a> {

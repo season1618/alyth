@@ -1,5 +1,6 @@
 #[derive(Debug)]
 pub enum Token<'a> {
+    Punct(PucntKind),
     Keyword(KeywordKind),
     Ident(&'a str),
     Num(u32),
@@ -10,4 +11,10 @@ pub enum Token<'a> {
 pub enum KeywordKind {
     Let,
     Func,
+}
+
+#[derive(Debug)]
+pub enum PucntKind {
+    Plus,
+    Minus,
 }
