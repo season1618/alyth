@@ -1,12 +1,14 @@
 mod data;
 mod lexer;
 mod parser;
+mod codegen;
 
 use std::env;
 use std::fs;
 
 use crate::lexer::tokenize;
 use crate::parser::parse;
+use crate::codegen::gen_program;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -18,7 +20,8 @@ fn main() {
     };
 
     let tokens = tokenize(&code);
-    println!("{:?}", tokens);
+    eprintln!("{:?}", tokens);
     let nodes = parse(tokens);
-    println!("{:?}", nodes);
+    eprintln!("{:?}", nodes);
+    gen_program(nodes);
 }
