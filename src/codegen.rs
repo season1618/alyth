@@ -5,9 +5,9 @@ use crate::data::*;
 
 use Expr::*;
 
-pub fn gen_program<'a>(node: Expr, dest: &'a mut File) {
+pub fn gen_program<'a>(node: Expr, dest: &'a mut File) -> Result<(), io::Error> {
     let mut codegen = CodeGen::new(dest);
-    codegen.gen_program(node);
+    codegen.gen_program(node)
 }
 
 struct CodeGen<'a> {

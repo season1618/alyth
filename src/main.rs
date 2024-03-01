@@ -37,7 +37,13 @@ fn compile(code: &str, dest: &mut File) {
             return ;
         },
     };
-    gen_program(nodes, dest);
+    match gen_program(nodes, dest) {
+        Ok(()) => {},
+        Err(e) => {
+            eprintln!("output error: {}", e);
+            return;
+        },
+    }
 }
 
 #[test]
