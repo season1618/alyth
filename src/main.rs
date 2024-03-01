@@ -60,6 +60,7 @@ fn test_expr() {
     test_compile("6-3/2", 5);
     test_compile("1+2+3+4+5+6+7+8*9", 100);
     test_compile("-12/3+4+3%2", 1);
+    test_compile("(1+2)*(-3+5)/(10-7)", 2);
 }
 
 fn test_compile(code: &str, expected: i32) {

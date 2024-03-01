@@ -4,7 +4,7 @@ use Token::*;
 use KeywordKind::*;
 use PunctKind::*;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Token<'a> {
     Punct(PunctKind),
     Keyword(KeywordKind),
@@ -14,14 +14,16 @@ pub enum Token<'a> {
     String(&'a str),
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum KeywordKind {
     Let,
     Func,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum PunctKind {
+    OpenParen,
+    CloseParen,
     Plus,
     Minus,
     Asterisk,
@@ -75,6 +77,8 @@ impl Display for KeywordKind {
 impl Display for PunctKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
+            OpenParen => write!(f, "("),
+            CloseParen => write!(f, ")"),
             Plus => write!(f, "+"),
             Minus => write!(f, "-"),
             Asterisk => write!(f, "*"),

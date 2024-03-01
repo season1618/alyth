@@ -62,6 +62,8 @@ impl<'a> Lexer<'a> {
         let c = &self.chs[0..1];
         self.next_char();
         match c {
+            "(" => Ok(Punct(OpenParen)),
+            ")" => Ok(Punct(CloseParen)),
             "+" => Ok(Punct(Plus)),
             "-" => Ok(Punct(Minus)),
             "*" => Ok(Punct(Asterisk)),

@@ -101,11 +101,24 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_primary(&mut self) -> Result<Expr, ParseError<'a>> {
-        match self.next() {
-            Some(Token::Num(val)) => Ok(Expr::Num(val)),
-            Some(token) => Err(UnexpectedToken(token)),
-            None => Err(NoToken),
+        if let Some(token) = self.peek() {
+            match token {
+                Punct(OpenParen) => {
+                    self.next();
+                    let expr = self.parse_expr()?;
+                    self.consume(Punct(CloseParen))?;
+                    return Ok(expr);
+                },
+                Token::Num(val) => {
+                    self.next();
+                    return Ok(Expr::Num(val));
+                },
+                _ => {
+                    return Err(UnexpectedToken(token));
+                },
+            }
         }
+        Err(NoToken)
     }
 
     fn peek(&self) -> Option<Token<'a>> {
@@ -122,5 +135,16 @@ impl<'a> Parser<'a> {
             return Some(token);
         }
         None
+    }
+
+    fn consume(&mut self, expected: Token<'a>) -> Result<(), ParseError<'a>> {
+        if let Some(actual) = self.next() {
+            if expected == actual {
+                return Ok(());
+            } else {
+                return Err(MismatchedToken { expected, actual });
+            }
+        }
+        Err(NoToken)
     }
 }
