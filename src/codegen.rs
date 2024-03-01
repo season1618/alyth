@@ -48,12 +48,12 @@ impl<'a> CodeGen<'a> {
             Sub => writeln!(self.dest, "    sub rax, rdi")?,
             Mul => writeln!(self.dest, "    imul rax, rdi")?,
             Div => {
-                writeln!(self.dest, "    cqo");
-                writeln!(self.dest, "    idiv rdi");
+                writeln!(self.dest, "    cqo")?;
+                writeln!(self.dest, "    idiv rdi")?;
             },
             Mod => {
-                writeln!(self.dest, "    cqo");
-                writeln!(self.dest, "    idiv rdi");
+                writeln!(self.dest, "    cqo")?;
+                writeln!(self.dest, "    idiv rdi")?;
                 return writeln!(self.dest, "    push rdx");
             },
         }
