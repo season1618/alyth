@@ -78,6 +78,9 @@ impl<'a> Lexer<'a> {
         match string {
             "+" => Ok(Punct(Plus)),
             "-" => Ok(Punct(Minus)),
+            "*" => Ok(Punct(Asterisk)),
+            "/" => Ok(Punct(Slash)),
+            "%" => Ok(Punct(Percent)),
             _ => Err(InvalidPunct(string)),
         }
     }

@@ -24,6 +24,9 @@ pub enum KeywordKind {
 pub enum PunctKind {
     Plus,
     Minus,
+    Asterisk,
+    Slash,
+    Percent,
 }
 
 #[derive(Debug)]
@@ -36,6 +39,9 @@ pub enum Expr {
 pub enum BinOpKind {
     Add,
     Sub,
+    Mul,
+    Div,
+    Mod,
 }
 
 impl<'a> Display for Token<'a> {
@@ -65,6 +71,9 @@ impl Display for PunctKind {
         match self {
             Plus => write!(f, "+"),
             Minus => write!(f, "-"),
+            Asterisk => write!(f, "*"),
+            Slash => write!(f, "/"),
+            Percent => write!(f, "%"),
         }
     }
 }

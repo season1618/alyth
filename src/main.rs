@@ -52,6 +52,11 @@ fn test_expr() {
     test_compile(" 123", 123);
     test_compile("1+2+3", 6);
     test_compile("1+2-3", 0);
+    test_compile("2*5/3", 3);
+    test_compile("2*6/3", 4);
+    test_compile("2*10%7", 6);
+    test_compile("6-3/2", 5);
+    test_compile("1+2+3+4+5+6+7+8*9", 100);
 }
 
 fn test_compile(code: &str, expected: i32) {

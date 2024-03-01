@@ -35,19 +35,46 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_add(&mut self) ->  Result<Expr, ParseError<'a>> {
-        let mut lhs = self.parse_primary()?;
+        let mut lhs = self.parse_mul()?;
         while let Some(token) = self.peek() {
             match token {
                 Punct(Plus) => {
                     self.next();
-                    let rhs = self.parse_primary()?;
+                    let rhs = self.parse_mul()?;
                     lhs = BinOp { kind: Add, lhs: Box::new(lhs), rhs: Box::new(rhs) };
                 },
                 Punct(Minus) => {
                     self.next();
-                    let rhs = self.parse_primary()?;
+                    let rhs = self.parse_mul()?;
                     lhs = BinOp { kind: Sub, lhs: Box::new(lhs), rhs: Box::new(rhs) };
                 },
+                _ => {
+                    break;
+                },
+            }
+        }
+        Ok(lhs)
+    }
+
+    fn parse_mul(&mut self) ->  Result<Expr, ParseError<'a>> {
+        let mut lhs = self.parse_primary()?;
+        while let Some(token) = self.peek() {
+            match token {
+                Punct(Asterisk) => {
+                    self.next();
+                    let rhs = self.parse_primary()?;
+                    lhs = BinOp { kind: Mul, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+                },
+                Punct(Slash) => {
+                    self.next();
+                    let rhs = self.parse_primary()?;
+                    lhs = BinOp { kind: Div, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+                },
+                Punct(Percent) => {
+                    self.next();
+                    let rhs = self.parse_primary()?;
+                    lhs = BinOp { kind: Mod, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+                }
                 _ => {
                     break;
                 },
