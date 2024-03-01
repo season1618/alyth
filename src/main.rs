@@ -24,3 +24,35 @@ fn main() {
     eprintln!("{:?}", nodes);
     gen_program(nodes, &mut dest);
 }
+
+#[test]
+fn test_expr() {
+    test_compile("1  ", 1);
+    test_compile(" 123", 123);
+}
+
+fn test_compile(code: &str, expected: i32) {
+    use std::process::Command;
+
+    let mut dest = fs::File::create("./test/main.s").unwrap();
+
+    let tokens = tokenize(code);
+    let nodes = parse(tokens);
+    gen_program(nodes, &mut dest);
+
+    Command::new("cc")
+        .args(["-o", "test/main", "test/main.s"])
+        .status()
+        .expect("failed to execute process");
+
+    let actual = Command::new(fs::canonicalize("./test/main").unwrap())
+        .status()
+        .expect("failed to execute process")
+        .code().unwrap();
+    
+    if expected == actual {
+        eprintln!("OK");
+    } else {
+        eprintln!("{}: expected {}, actual {}", code, expected, actual);
+    }
+}
