@@ -1,10 +1,11 @@
 use std::fs::File;
 use std::io::{self, Write};
 
-use crate::data::{Expr, BinOpKind};
+use crate::data::{Expr, BinOpKind, UnOpKind};
 
 use Expr::*;
 use BinOpKind::*;
+use UnOpKind::*;
 
 pub fn gen_program<'a>(node: Expr, dest: &'a mut File) -> Result<(), io::Error> {
     let mut codegen = CodeGen::new(dest);
@@ -32,6 +33,7 @@ impl<'a> CodeGen<'a> {
     fn gen_expr(&mut self, expr: Expr) -> Result<(), io::Error> {
         match expr {
             BinOp { kind, lhs, rhs } => self.gen_binary(kind, *lhs, *rhs),
+            UnOp { kind, operand } => self.gen_unary(kind, *operand),
             Num(val) => writeln!(self.dest, "    push {val}"),
         }
     }
@@ -54,6 +56,15 @@ impl<'a> CodeGen<'a> {
                 writeln!(self.dest, "    idiv rdi");
                 return writeln!(self.dest, "    push rdx");
             },
+        }
+        writeln!(self.dest, "    push rax")
+    }
+
+    fn gen_unary(&mut self, kind: UnOpKind, operand: Expr) -> Result<(), io::Error> {
+        self.gen_expr(operand)?;
+        writeln!(self.dest, "    pop rax")?;
+        match kind {
+            Neg => writeln!(self.dest, "    neg rax")?,
         }
         writeln!(self.dest, "    push rax")
     }

@@ -6,6 +6,7 @@ use PunctKind::*;
 use KeywordKind::*;
 use Expr::*;
 use BinOpKind::*;
+use UnOpKind::*;
 use ParseError::*;
 
 pub fn parse<'a>(tokens: Vec<Token<'a>>) -> Result<Expr, ParseError<'a>> {
@@ -57,22 +58,22 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_mul(&mut self) ->  Result<Expr, ParseError<'a>> {
-        let mut lhs = self.parse_primary()?;
+        let mut lhs = self.parse_unary()?;
         while let Some(token) = self.peek() {
             match token {
                 Punct(Asterisk) => {
                     self.next();
-                    let rhs = self.parse_primary()?;
+                    let rhs = self.parse_unary()?;
                     lhs = BinOp { kind: Mul, lhs: Box::new(lhs), rhs: Box::new(rhs) };
                 },
                 Punct(Slash) => {
                     self.next();
-                    let rhs = self.parse_primary()?;
+                    let rhs = self.parse_unary()?;
                     lhs = BinOp { kind: Div, lhs: Box::new(lhs), rhs: Box::new(rhs) };
                 },
                 Punct(Percent) => {
                     self.next();
-                    let rhs = self.parse_primary()?;
+                    let rhs = self.parse_unary()?;
                     lhs = BinOp { kind: Mod, lhs: Box::new(lhs), rhs: Box::new(rhs) };
                 }
                 _ => {
@@ -81,6 +82,22 @@ impl<'a> Parser<'a> {
             }
         }
         Ok(lhs)
+    }
+
+    fn parse_unary(&mut self) -> Result<Expr, ParseError<'a>> {
+        if let Some(token) = self.peek() {
+            let node = match token {
+                Punct(Minus) => {
+                    self.next();
+                    UnOp { kind: Neg, operand: Box::new(self.parse_unary()?) }
+                },
+                _ => {
+                    self.parse_primary()?
+                },
+            };
+            return Ok(node);
+        }
+        Err(NoToken)
     }
 
     fn parse_primary(&mut self) -> Result<Expr, ParseError<'a>> {
