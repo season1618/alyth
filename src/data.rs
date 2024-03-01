@@ -28,7 +28,14 @@ pub enum PunctKind {
 
 #[derive(Debug)]
 pub enum Expr {
+    BinOp { kind: BinOpKind, lhs: Box<Expr>, rhs: Box<Expr> },
     Num(u32),
+}
+
+#[derive(Debug)]
+pub enum BinOpKind {
+    Add,
+    Sub,
 }
 
 impl<'a> Display for Token<'a> {

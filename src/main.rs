@@ -50,6 +50,8 @@ fn compile(code: &str, dest: &mut File) {
 fn test_expr() {
     test_compile("1  ", 1);
     test_compile(" 123", 123);
+    test_compile("1+2+3", 6);
+    test_compile("1+2-3", 0);
 }
 
 fn test_compile(code: &str, expected: i32) {
