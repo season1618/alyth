@@ -2,7 +2,7 @@ use crate::data::*;
 use crate::error::TokenError;
 
 use Token::*;
-use PucntKind::*;
+use PunctKind::*;
 use KeywordKind::*;
 use TokenError::*;
 

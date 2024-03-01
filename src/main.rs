@@ -24,7 +24,7 @@ fn main() {
 
 fn compile(code: &str, dest: &mut File) {
     let tokens = match tokenize(code) {
-        Ok(code) => code,
+        Ok(tokens) => tokens,
         Err(e) => {
             eprintln!("token error: {}", e);
             return;

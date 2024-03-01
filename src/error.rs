@@ -1,5 +1,4 @@
-use std::io;
-use std::fmt;
+use std::fmt::{Display, Formatter, Result};
 
 use crate::data::Token;
 use TokenError::*;
@@ -12,8 +11,8 @@ pub enum TokenError<'a> {
     UnterminatedStringLiteral,
 }
 
-impl<'a> fmt::Display for TokenError<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl<'a> Display for TokenError<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
             InvalidChar(c) => write!(f, "invalid character '{}'", c),
             InvalidPunct(s) => write!(f, "invalid punctuation '{}'", s),
@@ -28,8 +27,8 @@ pub enum ParseError<'a> {
     NoToken,
 }
 
-impl<'a> fmt::Display for ParseError<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl<'a> Display for ParseError<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
             UnexpectedToken(token) => write!(f, "unexpected token '{}'", token),
             NoToken => write!(f, "no token"),

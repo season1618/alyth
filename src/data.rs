@@ -2,11 +2,11 @@ use std::fmt::{Display, Formatter, Result};
 
 use Token::*;
 use KeywordKind::*;
-use PucntKind::*;
+use PunctKind::*;
 
 #[derive(Debug, Copy, Clone)]
 pub enum Token<'a> {
-    Punct(PucntKind),
+    Punct(PunctKind),
     Keyword(KeywordKind),
     Ident(&'a str),
     Num(u32),
@@ -21,7 +21,7 @@ pub enum KeywordKind {
 }
 
 #[derive(Debug, Copy, Clone)]
-pub enum PucntKind {
+pub enum PunctKind {
     Plus,
     Minus,
 }
@@ -53,7 +53,7 @@ impl Display for KeywordKind {
     }
 }
 
-impl Display for PucntKind {
+impl Display for PunctKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
             Plus => write!(f, "+"),
