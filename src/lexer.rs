@@ -59,29 +59,15 @@ impl<'a> Lexer<'a> {
     }
 
     fn read_punct(&mut self) -> Result<Token<'a>, TokenError<'a>> {
-        let mut chs = self.chs.char_indices();
-        let string = loop {
-            match chs.clone().peekable().peek() {
-                Some((_, c)) if c.is_ascii_punctuation() => {
-                    chs.next();
-                },
-                Some((i, _)) => {
-                    break &self.chs[..*i]
-                },
-                _ => {
-                    break self.chs
-                },
-            }
-        };
-        self.chs = chs.as_str();
-
-        match string {
+        let c = &self.chs[0..1];
+        self.next_char();
+        match c {
             "+" => Ok(Punct(Plus)),
             "-" => Ok(Punct(Minus)),
             "*" => Ok(Punct(Asterisk)),
             "/" => Ok(Punct(Slash)),
             "%" => Ok(Punct(Percent)),
-            _ => Err(InvalidPunct(string)),
+            _ => Err(InvalidPunct(c)),
         }
     }
 

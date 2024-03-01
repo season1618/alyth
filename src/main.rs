@@ -53,6 +53,7 @@ fn test_expr() {
     test_compile(" 123", 123);
     test_compile("1+2+3", 6);
     test_compile("1+2-3", 0);
+    test_compile("1--1", 2);
     test_compile("2*5/3", 3);
     test_compile("2*6/3", 4);
     test_compile("2*10%7", 6);
