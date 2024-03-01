@@ -1,10 +1,12 @@
 use crate::data::*;
+use crate::error::TokenError;
 
 use Token::*;
 use PucntKind::*;
 use KeywordKind::*;
+use TokenError::*;
 
-pub fn tokenize<'a>(code: &'a str) -> Vec<Token<'a>> {
+pub fn tokenize<'a>(code: &'a str) -> Result<Vec<Token<'a>>, TokenError<'a>> {
     let mut lexer = Lexer::new(code);
     lexer.tokenize()
 }
@@ -18,7 +20,7 @@ impl<'a> Lexer<'a> {
         Lexer { chs: code }
     }
 
-    fn tokenize(&mut self) -> Vec<Token<'a>> {
+    fn tokenize(&mut self) -> Result<Vec<Token<'a>>, TokenError<'a>> {
         let mut tokens = Vec::new();
         while let Some(c) = self.peek_char() {
             if c.is_whitespace() {
@@ -27,17 +29,17 @@ impl<'a> Lexer<'a> {
             }
 
             if c == '\'' {
-                tokens.push(self.read_char());
+                tokens.push(self.read_char()?);
                 continue;
             }
 
             if c == '\"' {
-                tokens.push(self.read_string());
+                tokens.push(self.read_string()?);
                 continue;
             }
 
             if c.is_ascii_punctuation() {
-                tokens.push(self.read_punct());
+                tokens.push(self.read_punct()?);
                 continue;
             }
 
@@ -51,12 +53,12 @@ impl<'a> Lexer<'a> {
                 continue;
             }
 
-            break;
+            return Err(InvalidChar(c));
         }
-        tokens
+        Ok(tokens)
     }
 
-    fn read_punct(&mut self) -> Token<'a> {
+    fn read_punct(&mut self) -> Result<Token<'a>, TokenError<'a>> {
         let mut chs = self.chs.char_indices();
         let string = loop {
             match chs.clone().peekable().peek() {
@@ -74,9 +76,9 @@ impl<'a> Lexer<'a> {
         self.chs = chs.as_str();
 
         match string {
-            "+" => Punct(Plus),
-            "-" => Punct(Minus),
-            _ => panic!(),
+            "+" => Ok(Punct(Plus)),
+            "-" => Ok(Punct(Minus)),
+            _ => Err(InvalidPunct(string)),
         }
     }
 
@@ -122,28 +124,28 @@ impl<'a> Lexer<'a> {
         Num(num)
     }
 
-    fn read_char(&mut self) -> Token<'a> {
+    fn read_char(&mut self) -> Result<Token<'a>, TokenError<'a>> {
         self.next_char();
         if let Some(c) = self.next_char() {
             if Some('\'') == self.next_char() {
-                return Char(c);
+                return Ok(Char(c));
             }
         }
-        panic!();
+        Err(UnterminatedCharLiteral)
     }
 
-    fn read_string(&mut self) -> Token<'a> {
+    fn read_string(&mut self) -> Result<Token<'a>, TokenError<'a>> {
         self.next_char();
         let mut chs = self.chs.char_indices();
         let string = loop {
             match chs.next() {
-                Some((i, '\"')) => break Some(&self.chs[..i]),
+                Some((i, '\"')) => break &self.chs[..i],
                 Some(_) => {},
-                None => break None,
+                None => return Err(UnterminatedStringLiteral),
             }
-        }.unwrap();
+        };
         self.chs = chs.as_str();
-        String(string)
+        Ok(String(string))
     }
 
     fn peek_char(&self) -> Option<char> {

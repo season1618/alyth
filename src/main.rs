@@ -1,4 +1,5 @@
 mod data;
+mod error;
 mod lexer;
 mod parser;
 mod codegen;
@@ -15,14 +16,22 @@ fn main() {
     let src_path = &args[1];
     let dest_path = &args[2];
 
-    let code = fs::read_to_string(src_path).expect("failed to open the source file");
+    let code = &fs::read_to_string(src_path).expect("failed to open the source file");
     let mut dest = File::create(dest_path).expect("failed to create the destination file");
 
-    let tokens = tokenize(&code);
-    eprintln!("{:?}", tokens);
+    compile(code, &mut dest);
+}
+
+fn compile(code: &str, dest: &mut File) {
+    let tokens = match tokenize(code) {
+        Ok(code) => code,
+        Err(e) => {
+            eprintln!("token error: {}", e);
+            return;
+        },
+    };
     let nodes = parse(tokens);
-    eprintln!("{:?}", nodes);
-    gen_program(nodes, &mut dest);
+    gen_program(nodes, dest);
 }
 
 #[test]
@@ -36,9 +45,7 @@ fn test_compile(code: &str, expected: i32) {
 
     let mut dest = fs::File::create("./test/main.s").unwrap();
 
-    let tokens = tokenize(code);
-    let nodes = parse(tokens);
-    gen_program(nodes, &mut dest);
+    compile(code, &mut dest);
 
     Command::new("cc")
         .args(["-o", "test/main", "test/main.s"])
