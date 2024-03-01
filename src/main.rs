@@ -30,7 +30,13 @@ fn compile(code: &str, dest: &mut File) {
             return;
         },
     };
-    let nodes = parse(tokens);
+    let nodes = match parse(tokens) {
+        Ok(nodes) => nodes,
+        Err(e) => {
+            eprintln!("parse error: {}", e);
+            return ;
+        },
+    };
     gen_program(nodes, dest);
 }
 

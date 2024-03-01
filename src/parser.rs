@@ -1,11 +1,13 @@
 use crate::data::*;
+use crate::error::ParseError;
 
 use Token::*;
 use PucntKind::*;
 use KeywordKind::*;
 use Expr::*;
+use ParseError::*;
 
-pub fn parse<'a>(tokens: Vec<Token<'a>>) -> Expr {
+pub fn parse<'a>(tokens: Vec<Token<'a>>) -> Result<Expr, ParseError<'a>> {
     let mut parser = Parser::new(tokens);
     parser.parse()
 }
@@ -23,14 +25,15 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse(&mut self) -> Expr {
+    fn parse(&mut self) -> Result<Expr, ParseError<'a>> {
         self.parse_expr()
     }
 
-    fn parse_expr(&mut self) -> Expr {
+    fn parse_expr(&mut self) -> Result<Expr, ParseError<'a>> {
         match self.next() {
-            Some(Token::Num(val)) => Expr::Num(val),
-            _ => { panic!(); },
+            Some(Token::Num(val)) => Ok(Expr::Num(val)),
+            Some(token) => Err(UnexpectedToken(token)),
+            None => Err(NoToken),
         }
     }
 
