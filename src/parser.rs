@@ -200,7 +200,7 @@ impl<'a> Parser<'a> {
                     return Ok(Expr::Num(val));
                 },
                 _ => {
-                    return Err(UnexpectedToken(token));
+                    return Err(UnexpectedToken { actual: token });
                 },
             }
         }
@@ -231,6 +231,6 @@ impl<'a> Parser<'a> {
                 return Err(MismatchedToken { expected, actual });
             }
         }
-        Err(NoToken)
+        Err(DroppedToken { expected })
     }
 }

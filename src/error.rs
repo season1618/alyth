@@ -23,16 +23,18 @@ impl<'a> Display for TokenError<'a> {
 }
 
 pub enum ParseError<'a> {
-    UnexpectedToken(Token<'a>),
     MismatchedToken { expected: Token<'a>, actual: Token<'a> },
+    DroppedToken { expected: Token<'a> },
+    UnexpectedToken { actual: Token<'a> },
     NoToken,
 }
 
 impl<'a> Display for ParseError<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
-            UnexpectedToken(token) => write!(f, "unexpected token '{}'", token),
-            MismatchedToken { expected, actual } => write!(f, "mismatched token: expected {}, actual {}", expected, actual),
+            MismatchedToken { expected, actual } => write!(f, "mismatched token: expected '{}', actual '{}'", expected, actual),
+            DroppedToken { expected } => write!(f, "dropped token '{}'", expected),
+            UnexpectedToken { actual } => write!(f, "unexpected token '{}'", actual),
             NoToken => write!(f, "no token"),
         }
     }
