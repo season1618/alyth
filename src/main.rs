@@ -67,6 +67,16 @@ fn test_expr() {
     test_compile("1+4 <2+3", 0);
     test_compile("1+4>=2+3", 1);
     test_compile("1+4 >2+3", 0);
+    test_compile("!0", 1);
+    test_compile("!1", 0);
+    test_compile("0 || 0", 0);
+    test_compile("0 || 1", 1);
+    test_compile("1 || 0", 1);
+    test_compile("1 || 1", 1);
+    test_compile("0 && 0", 0);
+    test_compile("0 && 1", 0);
+    test_compile("1 && 0", 0);
+    test_compile("1 && 1", 1);
 }
 
 fn test_compile(code: &str, expected: i32) {

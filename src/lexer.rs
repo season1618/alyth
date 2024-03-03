@@ -60,7 +60,7 @@ impl<'a> Lexer<'a> {
 
     fn read_punct(&mut self) -> Result<Token<'a>, TokenError<'a>> {
         let punct;
-        (punct, self.chs) = if ["==", "!=", "<=", ">="].as_slice().iter().any(|s| self.chs.starts_with(s)) {
+        (punct, self.chs) = if ["||", "&&", "==", "!=", "<=", ">="].as_slice().iter().any(|s| self.chs.starts_with(s)) {
             (&self.chs[0..2], &self.chs[2..])
         } else {
             (&self.chs[0..1], &self.chs[1..])
@@ -68,6 +68,9 @@ impl<'a> Lexer<'a> {
         match punct {
             "(" => Ok(Punct(OpenParen)),
             ")" => Ok(Punct(CloseParen)),
+            "||" => Ok(Punct(VertVert)),
+            "&&" => Ok(Punct(AndAnd)),
+            "!" => Ok(Punct(Ex)),
             "==" => Ok(Punct(EqEq)),
             "!=" => Ok(Punct(ExEq)),
             "<=" => Ok(Punct(LtEq)),

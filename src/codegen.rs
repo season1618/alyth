@@ -14,11 +14,12 @@ pub fn gen_program<'a>(node: Expr, dest: &'a mut File) -> Result<(), io::Error> 
 
 struct CodeGen<'a> {
     dest: &'a mut File,
+    label: u32,
 }
 
 impl<'a> CodeGen<'a> {
     fn new(dest: &'a mut File) -> Self {
-        Self { dest }
+        Self { dest, label: 0 }
     }
 
     fn gen_program(&'a mut self, expr: Expr) -> Result<(), io::Error> {
@@ -39,6 +40,34 @@ impl<'a> CodeGen<'a> {
     }
 
     fn gen_binary(&mut self, kind: BinOpKind, lhs: Expr, rhs: Expr) -> Result<(), io::Error> {
+        match kind {
+            LogicOr => {
+                let label = self.get_label();
+
+                self.gen_expr(lhs)?;
+                writeln!(self.dest, "    pop rax")?;
+                writeln!(self.dest, "    cmp rax, 0")?;
+                writeln!(self.dest, "    jne .L{label}")?;
+                self.gen_expr(rhs)?;
+                writeln!(self.dest, "    pop rax")?;
+                writeln!(self.dest, ".L{label}:")?;
+                return writeln!(self.dest, "    push rax");
+            },
+            LogicAnd => {
+                let label = self.get_label();
+
+                self.gen_expr(lhs)?;
+                writeln!(self.dest, "    pop rax")?;
+                writeln!(self.dest, "    cmp rax, 0")?;
+                writeln!(self.dest, "    je .L{label}")?;
+                self.gen_expr(rhs)?;
+                writeln!(self.dest, "    pop rax")?;
+                writeln!(self.dest, ".L{label}:")?;
+                return writeln!(self.dest, "    push rax");
+            },
+            _ => {},
+        }
+
         self.gen_expr(lhs)?;
         self.gen_expr(rhs)?;
         writeln!(self.dest, "    pop rdi")?;
@@ -76,6 +105,7 @@ impl<'a> CodeGen<'a> {
                 writeln!(self.dest, "    idiv rdi")?;
                 return writeln!(self.dest, "    push rdx");
             },
+            _ => {},
         }
         writeln!(self.dest, "    push rax")
     }
@@ -84,8 +114,15 @@ impl<'a> CodeGen<'a> {
         self.gen_expr(operand)?;
         writeln!(self.dest, "    pop rax")?;
         match kind {
+            LogicNot => writeln!(self.dest, "    xor rax, 1")?,
             Neg => writeln!(self.dest, "    neg rax")?,
         }
         writeln!(self.dest, "    push rax")
+    }
+
+    fn get_label(&mut self) -> u32 {
+        let label = self.label;
+        self.label += 1;
+        label
     }
 }

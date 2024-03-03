@@ -24,6 +24,9 @@ pub enum KeywordKind {
 pub enum PunctKind {
     OpenParen,
     CloseParen,
+    VertVert,
+    AndAnd,
+    Ex,
     EqEq,
     ExEq,
     LtEq,
@@ -46,6 +49,8 @@ pub enum Expr {
 
 #[derive(Debug)]
 pub enum BinOpKind {
+    LogicOr,
+    LogicAnd,
     Eq,
     Neq,
     Leq,
@@ -59,6 +64,7 @@ pub enum BinOpKind {
 
 #[derive(Debug)]
 pub enum UnOpKind {
+    LogicNot,
     Neg,
 }
 
@@ -89,6 +95,9 @@ impl Display for PunctKind {
         match self {
             OpenParen => write!(f, "("),
             CloseParen => write!(f, ")"),
+            VertVert => "||".fmt(f),
+            AndAnd => "&&".fmt(f),
+            Ex => "!".fmt(f),
             EqEq => "==".fmt(f),
             ExEq => "!=".fmt(f),
             LtEq => "<=".fmt(f),

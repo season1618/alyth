@@ -32,7 +32,27 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_expr(&mut self) -> Result<Expr, ParseError<'a>> {
-        self.parse_compare()
+        self.parse_logic_or()
+    }
+
+    fn parse_logic_or(&mut self) -> Result<Expr, ParseError<'a>> {
+        let mut lhs = self.parse_logic_and()?;
+        while Some(Punct(VertVert)) == self.peek() {
+            self.next();
+            let rhs = self.parse_logic_and()?;
+            lhs = BinOp { kind: LogicOr, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+        }
+        Ok(lhs)
+    }
+
+    fn parse_logic_and(&mut self) -> Result<Expr, ParseError<'a>> {
+        let mut lhs = self.parse_compare()?;
+        while Some(Punct(AndAnd)) == self.peek() {
+            self.next();
+            let rhs = self.parse_compare()?;
+            lhs = BinOp { kind: LogicAnd, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+        }
+        Ok(lhs)
     }
 
     fn parse_compare(&mut self) -> Result<Expr, ParseError<'a>> {
@@ -127,6 +147,10 @@ impl<'a> Parser<'a> {
     fn parse_unary(&mut self) -> Result<Expr, ParseError<'a>> {
         if let Some(token) = self.peek() {
             let node = match token {
+                Punct(Ex) => {
+                    self.next();
+                    UnOp { kind: LogicNot, operand: Box::new(self.parse_unary()?) }
+                },
                 Punct(Minus) => {
                     self.next();
                     UnOp { kind: Neg, operand: Box::new(self.parse_unary()?) }
