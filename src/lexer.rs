@@ -59,17 +59,27 @@ impl<'a> Lexer<'a> {
     }
 
     fn read_punct(&mut self) -> Result<Token<'a>, TokenError<'a>> {
-        let c = &self.chs[0..1];
-        self.next_char();
-        match c {
+        let punct;
+        (punct, self.chs) = if ["==", "!=", "<=", ">="].as_slice().iter().any(|s| self.chs.starts_with(s)) {
+            (&self.chs[0..2], &self.chs[2..])
+        } else {
+            (&self.chs[0..1], &self.chs[1..])
+        };
+        match punct {
             "(" => Ok(Punct(OpenParen)),
             ")" => Ok(Punct(CloseParen)),
+            "==" => Ok(Punct(EqEq)),
+            "!=" => Ok(Punct(ExEq)),
+            "<=" => Ok(Punct(LtEq)),
+            "<" => Ok(Punct(Lt)),
+            ">=" => Ok(Punct(GtEq)),
+            ">" => Ok(Punct(Gt)),
             "+" => Ok(Punct(Plus)),
             "-" => Ok(Punct(Minus)),
             "*" => Ok(Punct(Asterisk)),
             "/" => Ok(Punct(Slash)),
             "%" => Ok(Punct(Percent)),
-            _ => Err(InvalidPunct(c)),
+            _ => Err(InvalidPunct(punct)),
         }
     }
 

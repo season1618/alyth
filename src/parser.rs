@@ -32,7 +32,47 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_expr(&mut self) -> Result<Expr, ParseError<'a>> {
-        self.parse_add()
+        self.parse_compare()
+    }
+
+    fn parse_compare(&mut self) -> Result<Expr, ParseError<'a>> {
+        let mut lhs = self.parse_add()?;
+        if let Some(token) = self.peek() {
+            match token {
+                Punct(EqEq) => {
+                    self.next();
+                    let rhs = self.parse_add()?;
+                    lhs = BinOp { kind: Eq, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+                },
+                Punct(ExEq) => {
+                    self.next();
+                    let rhs = self.parse_add()?;
+                    lhs = BinOp { kind: Neq, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+                },
+                Punct(LtEq) => {
+                    self.next();
+                    let rhs = self.parse_add()?;
+                    lhs = BinOp { kind: Leq, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+                },
+                Punct(PunctKind::Lt) => {
+                    self.next();
+                    let rhs = self.parse_add()?;
+                    lhs = BinOp { kind: BinOpKind::Lt, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+                },
+                Punct(GtEq) => {
+                    self.next();
+                    let rhs = self.parse_add()?;
+                    lhs = BinOp { kind: Leq, lhs: Box::new(rhs), rhs: Box::new(lhs) };
+                },
+                Punct(Gt) => {
+                    self.next();
+                    let rhs = self.parse_add()?;
+                    lhs = BinOp { kind: BinOpKind::Lt, lhs: Box::new(rhs), rhs: Box::new(lhs) };
+                },
+                _ => {},
+            }
+        }
+        Ok(lhs)
     }
 
     fn parse_add(&mut self) ->  Result<Expr, ParseError<'a>> {

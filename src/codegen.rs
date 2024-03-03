@@ -44,6 +44,26 @@ impl<'a> CodeGen<'a> {
         writeln!(self.dest, "    pop rdi")?;
         writeln!(self.dest, "    pop rax")?;
         match kind {
+            Eq => {
+                writeln!(self.dest, "    cmp rax, rdi")?;
+                writeln!(self.dest, "    sete al")?;
+                writeln!(self.dest, "    movzb rax, al")?;
+            },
+            Neq => {
+                writeln!(self.dest, "    cmp rax, rdi")?;
+                writeln!(self.dest, "    setne al")?;
+                writeln!(self.dest, "    movzb rax, al")?;
+            },
+            Leq => {
+                writeln!(self.dest, "    cmp rax, rdi")?;
+                writeln!(self.dest, "    setle al")?;
+                writeln!(self.dest, "    movzb rax, al")?;
+            },
+            Lt => {
+                writeln!(self.dest, "    cmp rax, rdi")?;
+                writeln!(self.dest, "    setl al")?;
+                writeln!(self.dest, "    movzb rax, al")?;
+            },
             Add => writeln!(self.dest, "    add rax, rdi")?,
             Sub => writeln!(self.dest, "    sub rax, rdi")?,
             Mul => writeln!(self.dest, "    imul rax, rdi")?,
