@@ -107,6 +107,7 @@ impl<'a> Lexer<'a> {
         match string {
             "let" => Keyword(Let),
             "func" => Keyword(Func),
+            "return" => Keyword(Return),
             _ => Ident(string),
         }
     }

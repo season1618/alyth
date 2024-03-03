@@ -33,6 +33,11 @@ impl<'a> CodeGen<'a> {
 
     fn gen_stmt(&mut self, stmt: Stmt) -> Result<(), io::Error> {
         match stmt {
+            Stmt::Return(expr) => {
+                self.gen_expr(expr)?;
+                writeln!(self.dest, "    pop rax")?;
+                writeln!(self.dest, "    ret")
+            },
             ExprStmt(expr) => {
                 self.gen_expr(expr)?;
                 writeln!(self.dest, "    pop rax")

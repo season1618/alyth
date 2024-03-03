@@ -77,6 +77,7 @@ fn test_expr() {
     test_compile("0 && 1;", 0);
     test_compile("1 && 0;", 0);
     test_compile("1 && 1;", 1);
+    test_compile("return (1+2)*(-3+5)/(10-7);", 2);
 }
 
 fn test_compile(code: &str, expected: i32) {

@@ -36,6 +36,12 @@ impl<'a> Parser<'a> {
     fn parse_stmt(&mut self) -> Result<Stmt, ParseError<'a>> {
         if let Some(token) = self.peek() {
             let stmt = match token {
+                Keyword(KeywordKind::Return) => {
+                    self.next();
+                    let expr = self.parse_expr()?;
+                    self.consume(Punct(SemiColon))?;
+                    Stmt::Return(expr)
+                },
                 _ => {
                     let expr = self.parse_expr()?;
                     self.consume(Punct(SemiColon))?;

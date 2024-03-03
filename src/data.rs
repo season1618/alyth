@@ -18,6 +18,7 @@ pub enum Token<'a> {
 pub enum KeywordKind {
     Let,
     Func,
+    Return,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -43,6 +44,7 @@ pub enum PunctKind {
 
 #[derive(Debug)]
 pub enum Stmt {
+    Return(Expr),
     ExprStmt(Expr),
 }
 
@@ -92,6 +94,7 @@ impl Display for KeywordKind {
         match self {
             Let => "let".fmt(f),
             Func => "func".fmt(f),
+            Return => "return".fmt(f),
         }
     }
 }
