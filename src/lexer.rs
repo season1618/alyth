@@ -68,6 +68,7 @@ impl<'a> Lexer<'a> {
         match punct {
             "(" => Ok(Punct(OpenParen)),
             ")" => Ok(Punct(CloseParen)),
+            ";" => Ok(Punct(SemiColon)),
             "||" => Ok(Punct(VertVert)),
             "&&" => Ok(Punct(AndAnd)),
             "!" => Ok(Punct(Ex)),

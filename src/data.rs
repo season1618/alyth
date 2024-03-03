@@ -24,6 +24,7 @@ pub enum KeywordKind {
 pub enum PunctKind {
     OpenParen,
     CloseParen,
+    SemiColon,
     VertVert,
     AndAnd,
     Ex,
@@ -38,6 +39,11 @@ pub enum PunctKind {
     Asterisk,
     Slash,
     Percent,
+}
+
+#[derive(Debug)]
+pub enum Stmt {
+    ExprStmt(Expr),
 }
 
 #[derive(Debug)]
@@ -95,6 +101,7 @@ impl Display for PunctKind {
         match self {
             OpenParen => "(".fmt(f),
             CloseParen => ")".fmt(f),
+            SemiColon => ";".fmt(f),
             VertVert => "||".fmt(f),
             AndAnd => "&&".fmt(f),
             Ex => "!".fmt(f),

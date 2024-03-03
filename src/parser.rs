@@ -4,12 +4,14 @@ use crate::error::ParseError;
 use Token::*;
 use PunctKind::*;
 use KeywordKind::*;
+
+use Stmt::*;
 use Expr::*;
 use BinOpKind::*;
 use UnOpKind::*;
 use ParseError::*;
 
-pub fn parse<'a>(tokens: Vec<Token<'a>>) -> Result<Expr, ParseError<'a>> {
+pub fn parse<'a>(tokens: Vec<Token<'a>>) -> Result<Stmt, ParseError<'a>> {
     let mut parser = Parser::new(tokens);
     parser.parse()
 }
@@ -27,8 +29,22 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse(&mut self) -> Result<Expr, ParseError<'a>> {
-        self.parse_expr()
+    fn parse(&mut self) -> Result<Stmt, ParseError<'a>> {
+        self.parse_stmt()
+    }
+
+    fn parse_stmt(&mut self) -> Result<Stmt, ParseError<'a>> {
+        if let Some(token) = self.peek() {
+            let stmt = match token {
+                _ => {
+                    let expr = self.parse_expr()?;
+                    self.consume(Punct(SemiColon))?;
+                    ExprStmt(expr)
+                },
+            };
+            return Ok(stmt);
+        }
+        Err(NoToken)
     }
 
     fn parse_expr(&mut self) -> Result<Expr, ParseError<'a>> {

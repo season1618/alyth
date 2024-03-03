@@ -1,13 +1,14 @@
 use std::fs::File;
 use std::io::{self, Write};
 
-use crate::data::{Expr, BinOpKind, UnOpKind};
+use crate::data::{Stmt, Expr, BinOpKind, UnOpKind};
 
+use Stmt::*;
 use Expr::*;
 use BinOpKind::*;
 use UnOpKind::*;
 
-pub fn gen_program<'a>(node: Expr, dest: &'a mut File) -> Result<(), io::Error> {
+pub fn gen_program<'a>(node: Stmt, dest: &'a mut File) -> Result<(), io::Error> {
     let mut codegen = CodeGen::new(dest);
     codegen.gen_program(node)
 }
@@ -22,13 +23,21 @@ impl<'a> CodeGen<'a> {
         Self { dest, label: 0 }
     }
 
-    fn gen_program(&'a mut self, expr: Expr) -> Result<(), io::Error> {
+    fn gen_program(&'a mut self, stmt: Stmt) -> Result<(), io::Error> {
         writeln!(self.dest, ".intel_syntax noprefix")?;
         writeln!(self.dest, ".global main")?;
         writeln!(self.dest, "main:")?;
-        self.gen_expr(expr)?;
-        writeln!(self.dest, "    pop rax")?;
+        self.gen_stmt(stmt)?;
         writeln!(self.dest, "    ret")
+    }
+
+    fn gen_stmt(&mut self, stmt: Stmt) -> Result<(), io::Error> {
+        match stmt {
+            ExprStmt(expr) => {
+                self.gen_expr(expr)?;
+                writeln!(self.dest, "    pop rax")
+            },
+        }
     }
     
     fn gen_expr(&mut self, expr: Expr) -> Result<(), io::Error> {
