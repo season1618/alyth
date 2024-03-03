@@ -84,8 +84,8 @@ impl<'a> Display for Token<'a> {
 impl Display for KeywordKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
-            Let => write!(f, "let"),
-            Func => write!(f, "func"),
+            Let => "let".fmt(f),
+            Func => "func".fmt(f),
         }
     }
 }
@@ -93,8 +93,8 @@ impl Display for KeywordKind {
 impl Display for PunctKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
-            OpenParen => write!(f, "("),
-            CloseParen => write!(f, ")"),
+            OpenParen => "(".fmt(f),
+            CloseParen => ")".fmt(f),
             VertVert => "||".fmt(f),
             AndAnd => "&&".fmt(f),
             Ex => "!".fmt(f),
@@ -104,11 +104,11 @@ impl Display for PunctKind {
             Lt => "<".fmt(f),
             GtEq => ">=".fmt(f),
             Gt => ">".fmt(f),
-            Plus => write!(f, "+"),
-            Minus => write!(f, "-"),
-            Asterisk => write!(f, "*"),
-            Slash => write!(f, "/"),
-            Percent => write!(f, "%"),
+            Plus => "+".fmt(f),
+            Minus => "-".fmt(f),
+            Asterisk => "*".fmt(f),
+            Slash => "/".fmt(f),
+            Percent => "%".fmt(f),
         }
     }
 }
