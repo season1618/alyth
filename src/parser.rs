@@ -34,23 +34,20 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_stmt(&mut self) -> Result<Stmt, ParseError<'a>> {
-        if let Some(token) = self.peek() {
-            let stmt = match token {
-                Keyword(KeywordKind::Return) => {
-                    self.next();
-                    let expr = self.parse_expr()?;
-                    self.consume(Punct(SemiColon))?;
-                    Stmt::Return(expr)
-                },
-                _ => {
-                    let expr = self.parse_expr()?;
-                    self.consume(Punct(SemiColon))?;
-                    ExprStmt(expr)
-                },
-            };
-            return Ok(stmt);
-        }
-        Err(NoToken)
+        let stmt = match self.peek().ok_or(NoToken)? {
+            Keyword(KeywordKind::Return) => {
+                self.next();
+                let expr = self.parse_expr()?;
+                self.consume(Punct(SemiColon))?;
+                Stmt::Return(expr)
+            },
+            _ => {
+                let expr = self.parse_expr()?;
+                self.consume(Punct(SemiColon))?;
+                ExprStmt(expr)
+            },
+        };
+        Ok(stmt)
     }
 
     fn parse_expr(&mut self) -> Result<Expr, ParseError<'a>> {
@@ -167,44 +164,38 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_unary(&mut self) -> Result<Expr, ParseError<'a>> {
-        if let Some(token) = self.peek() {
-            let node = match token {
-                Punct(Ex) => {
-                    self.next();
-                    UnOp { kind: LogicNot, operand: Box::new(self.parse_unary()?) }
-                },
-                Punct(Minus) => {
-                    self.next();
-                    UnOp { kind: Neg, operand: Box::new(self.parse_unary()?) }
-                },
-                _ => {
-                    self.parse_primary()?
-                },
-            };
-            return Ok(node);
-        }
-        Err(NoToken)
+        let node = match self.peek().ok_or(NoToken)? {
+            Punct(Ex) => {
+                self.next();
+                UnOp { kind: LogicNot, operand: Box::new(self.parse_unary()?) }
+            },
+            Punct(Minus) => {
+                self.next();
+                UnOp { kind: Neg, operand: Box::new(self.parse_unary()?) }
+            },
+            _ => {
+                self.parse_primary()?
+            },
+        };
+        Ok(node)
     }
 
     fn parse_primary(&mut self) -> Result<Expr, ParseError<'a>> {
-        if let Some(token) = self.peek() {
-            match token {
-                Punct(OpenParen) => {
-                    self.next();
-                    let expr = self.parse_expr()?;
-                    self.consume(Punct(CloseParen))?;
-                    return Ok(expr);
-                },
-                Token::Num(val) => {
-                    self.next();
-                    return Ok(Expr::Num(val));
-                },
-                _ => {
-                    return Err(UnexpectedToken { actual: token });
-                },
-            }
+        match self.peek().ok_or(NoToken)? {
+            Punct(OpenParen) => {
+                self.next();
+                let expr = self.parse_expr()?;
+                self.consume(Punct(CloseParen))?;
+                Ok(expr)
+            },
+            Token::Num(val) => {
+                self.next();
+                Ok(Expr::Num(val))
+            },
+            other => {
+                Err(UnexpectedToken { actual: other })
+            },
         }
-        Err(NoToken)
     }
 
     fn peek(&self) -> Option<Token<'a>> {
