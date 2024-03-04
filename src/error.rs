@@ -26,6 +26,7 @@ pub enum ParseError<'a> {
     MismatchedToken { expected: Token<'a>, actual: Token<'a> },
     DroppedToken { expected: Token<'a> },
     UnexpectedToken { actual: Token<'a> },
+    DroppedIdent,
     NoToken,
 }
 
@@ -35,6 +36,7 @@ impl<'a> Display for ParseError<'a> {
             MismatchedToken { expected, actual } => write!(f, "mismatched token: expected '{}', actual '{}'", expected, actual),
             DroppedToken { expected } => write!(f, "dropped token '{}'", expected),
             UnexpectedToken { actual } => write!(f, "unexpected token '{}'", actual),
+            DroppedIdent => write!(f, "dropped identifier"),
             NoToken => write!(f, "no token"),
         }
     }

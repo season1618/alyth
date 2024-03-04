@@ -5,13 +5,14 @@ use Token::*;
 use PunctKind::*;
 use KeywordKind::*;
 
+use Defn::*;
 use Stmt::*;
 use Expr::*;
 use BinOpKind::*;
 use UnOpKind::*;
 use ParseError::*;
 
-pub fn parse<'a>(tokens: Vec<Token<'a>>) -> Result<Stmt, ParseError<'a>> {
+pub fn parse<'a>(tokens: Vec<Token<'a>>) -> Result<Defn<'a>, ParseError<'a>> {
     let mut parser = Parser::new(tokens);
     parser.parse()
 }
@@ -29,8 +30,29 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse(&mut self) -> Result<Stmt, ParseError<'a>> {
-        self.parse_stmt()
+    fn parse(&mut self) -> Result<Defn<'a>, ParseError<'a>> {
+        self.parse_defn()
+    }
+
+    fn parse_defn(&mut self) -> Result<Defn<'a>, ParseError<'a>> {
+        match self.peek().ok_or(NoToken)? {
+            Keyword(Func) => {
+                self.next();
+                let name = self.next_ident()?;
+                self.consume(Punct(OpenParen))?;
+                self.consume(Punct(CloseParen))?;
+
+                let mut stmts = Vec::new();
+                self.consume(Punct(OpenBrace))?;
+                while Some(Punct(CloseBrace)) != self.peek() {
+                    stmts.push(self.parse_stmt()?);
+                }
+                self.consume(Punct(CloseBrace))?;
+
+                Ok(FuncDef { name, stmts })
+            },
+            actual => Err(UnexpectedToken { actual }),
+        }
     }
 
     fn parse_stmt(&mut self) -> Result<Stmt, ParseError<'a>> {
@@ -212,6 +234,13 @@ impl<'a> Parser<'a> {
             return Some(token);
         }
         None
+    }
+
+    fn next_ident(&mut self) -> Result<&'a str, ParseError<'a>> {
+        match self.next().ok_or(NoToken)? {
+            Ident(ident) => Ok(ident),
+            _ => Err(DroppedIdent),
+        }
     }
 
     fn consume(&mut self, expected: Token<'a>) -> Result<(), ParseError<'a>> {

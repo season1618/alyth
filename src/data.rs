@@ -23,6 +23,8 @@ pub enum KeywordKind {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum PunctKind {
+    OpenBrace,
+    CloseBrace,
     OpenParen,
     CloseParen,
     SemiColon,
@@ -40,6 +42,11 @@ pub enum PunctKind {
     Asterisk,
     Slash,
     Percent,
+}
+
+#[derive(Debug)]
+pub enum Defn<'a> {
+    FuncDef { name: &'a str, stmts: Vec<Stmt> },
 }
 
 #[derive(Debug)]
@@ -102,6 +109,8 @@ impl Display for KeywordKind {
 impl Display for PunctKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
+            OpenBrace => "{".fmt(f),
+            CloseBrace => "}".fmt(f),
             OpenParen => "(".fmt(f),
             CloseParen => ")".fmt(f),
             SemiColon => ";".fmt(f),

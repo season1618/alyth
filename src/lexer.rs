@@ -66,6 +66,8 @@ impl<'a> Lexer<'a> {
             (&self.chs[0..1], &self.chs[1..])
         };
         match punct {
+            "{" => Ok(Punct(OpenBrace)),
+            "}" => Ok(Punct(CloseBrace)),
             "(" => Ok(Punct(OpenParen)),
             ")" => Ok(Punct(CloseParen)),
             ";" => Ok(Punct(SemiColon)),
